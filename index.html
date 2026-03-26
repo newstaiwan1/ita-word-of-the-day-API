@@ -1,576 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dev Points Calculator</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parola del Giorno</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0a0a0f;
-    --surface: #11111a;
-    --border: #1e1e2e;
-    --accent: #00ff88;
-    --accent2: #ff6b35;
-    --text: #e8e8f0;
-    --muted: #555570;
-    --cap-color: #ff6b35;
-  }
+    :root {
+      --cream: #f5f0e8;
+      --ink: #1a1408;
+      --terracotta: #c8553d;
+      --gold: #c9972b;
+      --muted: #8a7f6e;
+      --card: #fffdf7;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-image:
+        radial-gradient(ellipse at 10% 20%, rgba(200,85,61,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(201,151,43,0.07) 0%, transparent 50%);
+    }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 40px 20px 60px;
-  }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.6s ease both;
+    }
 
-  /* grid bg */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+    header .flag { font-size: 2rem; margin-bottom: 0.4rem; }
 
-  .container {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 560px;
-  }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+    }
 
-  h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 4px;
-  }
+    header .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
 
-  h1 span { color: var(--accent); }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 4px 40px rgba(26,20,8,0.10), 0 1px 4px rgba(26,20,8,0.06);
+      border: 1px solid rgba(201,151,43,0.15);
+      animation: fadeUp 0.7s ease both;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-bottom: 36px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--terracotta), var(--gold));
+    }
 
-  .input-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
+    .date-badge {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
 
-  input[type="text"] {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
+    .word-section {
+      margin-bottom: 1.5rem;
+    }
 
-  input[type="text"]:focus { border-color: var(--accent); }
-  input[type="text"]::placeholder { color: var(--muted); }
+    .pos-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      background: rgba(200,85,61,0.09);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
 
-  button {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    padding: 14px 22px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity 0.15s, transform 0.1s;
-  }
+    .word {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 8vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -1px;
+    }
 
-  button:hover { opacity: 0.88; }
-  button:active { transform: scale(0.97); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .phonetic {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
 
-  .error {
-    background: rgba(255,107,53,0.1);
-    border: 1px solid var(--accent2);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--accent2);
-    margin-bottom: 20px;
-    display: none;
-  }
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(26,20,8,0.08);
+      margin: 1.4rem 0;
+    }
 
-  .results { display: none; }
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
 
-  .score-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
+    .definition {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--ink);
+    }
 
-  .score-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
+    .example {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-left: 1rem;
+      border-left: 2px solid var(--gold);
+    }
 
-  .score-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
+    .loading, .error {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      padding: 1rem 0;
+      text-align: center;
+    }
 
-  .score-value {
-    font-size: 3.5rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
+    .error { color: var(--terracotta); }
 
-  .score-value.qualified { color: var(--accent); }
-  .score-value.not-qualified { color: var(--accent2); }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
 
-  .score-status {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
+    button {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+      letter-spacing: 0.02em;
+    }
 
-  .breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+    button:active { transform: scale(0.97); }
 
-  .row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
+    .btn-primary {
+      background: var(--terracotta);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(200,85,61,0.25);
+    }
 
-  .row-left { flex: 1; }
+    .btn-primary:hover { opacity: 0.88; box-shadow: 0 4px 16px rgba(200,85,61,0.3); }
 
-  .row-name {
-    font-size: 0.88rem;
-    font-weight: 700;
-    margin-bottom: 2px;
-  }
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid rgba(26,20,8,0.18);
+    }
 
-  .row-detail {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-  }
+    .btn-secondary:hover { background: rgba(26,20,8,0.04); }
 
-  .row-points {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
-    font-weight: 700;
-    text-align: right;
-    white-space: nowrap;
-  }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      animation: fadeUp 0.9s ease both;
+    }
 
-  .row-points.capped { color: var(--cap-color); }
-  .row-points.partial { color: var(--accent); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  .cap-badge {
-    font-size: 0.6rem;
-    font-family: 'JetBrains Mono', monospace;
-    background: rgba(255,107,53,0.15);
-    color: var(--cap-color);
-    border-radius: 4px;
-    padding: 2px 5px;
-    margin-left: 6px;
-    vertical-align: middle;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  .progress-bar-wrap {
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-
-  .progress-bar {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--accent);
-    transition: width 0.6s cubic-bezier(.16,1,.3,1);
-  }
-
-  .progress-bar.capped { background: var(--cap-color); }
-
-  .threshold-note {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    text-align: center;
-    padding: 10px;
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-
-  .threshold-note span { color: var(--text); }
-
-  .spinner {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  .spinner::before {
-    content: '';
-    display: block;
-    width: 28px;
-    height: 28px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .profile-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-  }
-
-  .profile-name {
-    font-weight: 700;
-    font-size: 1rem;
-  }
-
-  .profile-handle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-  }
-
-  .api-note {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-align: center;
-    margin-top: 28px;
-    line-height: 1.6;
-  }
-
-  .shortcuts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
-  .shortcut-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    width: 100%;
-    margin-bottom: 2px;
-  }
-
-  .shortcut-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 7px 12px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
-  }
-
-  .shortcut-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--surface);
-    opacity: 1;
-  }
-</style>
+    .fade-in {
+      animation: fadeUp 0.45s ease both;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <h1>Dev<span>Points</span></h1>
-  <p class="subtitle">// GitHub score calculator — threshold: 7.0 pts</p>
 
-  <div class="shortcuts">
-    <span class="shortcut-label">// quick access</span>
-    <button class="shortcut-btn" onclick="loadUser('matt-dvlp')">matt-dvlp</button>
-    <button class="shortcut-btn" onclick="loadUser('newstaiwan1')">newstaiwan1</button>
-    <button class="shortcut-btn" onclick="loadUser('infomytaiwanlife-lang')">infomytaiwanlife-lang</button>
-    <button class="shortcut-btn" onclick="loadUser('news2-bit')">news2-bit</button>
-  </div>
+  <header>
+    <div class="flag">🇮🇹</div>
+    <h1>Parola del Giorno</h1>
+    <p class="subtitle">Italian Word of the Day</p>
+  </header>
 
-  <div class="input-row">
-    <input type="text" id="username" placeholder="github username" />
-    <button id="calcBtn" onclick="calculate()">Calculate</button>
-  </div>
-
-  <div class="error" id="error"></div>
-  <div class="spinner" id="spinner">fetching github data...</div>
-
-  <div class="results" id="results">
-    <div class="profile-row">
-      <img class="avatar" id="avatar" src="" alt="" />
-      <div>
-        <div class="profile-name" id="profileName"></div>
-        <div class="profile-handle" id="profileHandle"></div>
-      </div>
-    </div>
-
-    <div class="score-card">
-      <div class="score-label">Total Dev Points</div>
-      <div class="score-value" id="totalScore"></div>
-      <div class="score-status" id="scoreStatus"></div>
-    </div>
-
-    <div class="threshold-note">
-      threshold: <span>7.0 pts</span> — you need <span id="needed"></span> more point(s)
-    </div>
-
-    <div class="breakdown" id="breakdown"></div>
-
-    <div class="api-note">
-      ⚠ commit count queries up to 5 of your original repos (last 12 months).<br>
-      GitHub's events API no longer returns commit counts without authentication.
+  <div class="card" id="card">
+    <div class="date-badge" id="dateBadge"></div>
+    <div id="content"><p class="loading">Loading today's word…</p></div>
+    <div class="actions">
+      <button class="btn-primary" onclick="loadRandom()">🎲 Random Word</button>
+      <button class="btn-secondary" onclick="loadToday()">📅 Today's Word</button>
     </div>
   </div>
-</div>
 
-<script>
-function loadUser(name) {
-  document.getElementById('username').value = name;
-  calculate();
-}
+  <footer>Powered by Free Dictionary API &mdash; italiano-insieme.eu</footer>
 
-async function calculate() {
-  const username = document.getElementById('username').value.trim();
-  if (!username) return;
-
-  const btn = document.getElementById('calcBtn');
-  const spinner = document.getElementById('spinner');
-  const results = document.getElementById('results');
-  const errorEl = document.getElementById('error');
-
-  btn.disabled = true;
-  spinner.style.display = 'block';
-  results.style.display = 'none';
-  errorEl.style.display = 'none';
-
-  try {
-    // Fetch user profile
-    const userRes = await fetch(`https://api.github.com/users/${username}`);
-    if (!userRes.ok) throw new Error(userRes.status === 404 ? 'User not found.' : 'GitHub API error.');
-    const user = await userRes.json();
-
-    // Account age in months
-    const createdAt = new Date(user.created_at);
-    const now = new Date();
-    const months = (now.getFullYear() - createdAt.getFullYear()) * 12 + (now.getMonth() - createdAt.getMonth());
-
-    // Fetch repos
-    let repos = [];
-    let page = 1;
-    while (true) {
-      const r = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&page=${page}&type=public`);
-      if (!r.ok) break;
-      const data = await r.json();
-      if (!data.length) break;
-      repos = repos.concat(data);
-      if (data.length < 100) break;
-      page++;
-    }
-
-    // Original, non-empty, non-fork repos
-    const originalRepos = repos.filter(r => !r.fork && r.size > 0);
-    const repoCount = originalRepos.length;
-    const totalStars = originalRepos.reduce((acc, r) => acc + r.stargazers_count, 0);
-
-    // Commit count: query each original repo's commits authored by this user in the last year.
-    // The events API strips size/commits from PushEvent payloads for unauthenticated requests,
-    // so that approach always returns 0. Per-repo commit search is the reliable alternative.
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    const since = oneYearAgo.toISOString();
-
-    let commits = 0;
-    // Cap at 5 repos to stay within the 60 req/hr unauthenticated rate limit
-    const reposToCheck = originalRepos.slice(0, 5);
-    for (const repo of reposToCheck) {
-      try {
-        // GitHub counts commits per page — we only need the total, so fetch p1 and check Link header
-        const r = await fetch(
-          `https://api.github.com/repos/${repo.full_name}/commits?author=${username}&since=${since}&per_page=100`
-        );
-        if (!r.ok) continue;
-        const data = await r.json();
-        if (!Array.isArray(data)) continue;
-        commits += data.length;
-        // If there are more pages, follow them (cap at 3 pages per repo = 300 commits)
-        let linkHeader = r.headers.get('Link') || '';
-        let nextPage = 2;
-        while (linkHeader.includes('rel="next"') && nextPage <= 3) {
-          const nr = await fetch(
-            `https://api.github.com/repos/${repo.full_name}/commits?author=${username}&since=${since}&per_page=100&page=${nextPage}`
-          );
-          if (!nr.ok) break;
-          const nd = await nr.json();
-          if (!Array.isArray(nd) || !nd.length) break;
-          commits += nd.length;
-          linkHeader = nr.headers.get('Link') || '';
-          nextPage++;
-        }
-      } catch { /* skip this repo on error */ }
-    }
-
-    // Calculate points
-    const agePts = Math.min(months * 0.5, 6);
-    const commitPts = Math.min(commits * 0.1, 3);
-    const repoPts = Math.min(repoCount * 0.5, 1);
-    const starPts = Math.min(totalStars * 0.1, 5);
-    const total = agePts + commitPts + repoPts + starPts;
-
-    // Render
-    document.getElementById('avatar').src = user.avatar_url;
-    document.getElementById('profileName').textContent = user.name || username;
-    document.getElementById('profileHandle').textContent = `@${user.login} · joined ${createdAt.toLocaleDateString('en-US', {month:'short', year:'numeric'})}`;
-
-    const scoreEl = document.getElementById('totalScore');
-    scoreEl.textContent = total.toFixed(1);
-    scoreEl.className = 'score-value ' + (total >= 7 ? 'qualified' : 'not-qualified');
-
-    const needed = Math.max(0, 7 - total);
-    document.getElementById('scoreStatus').textContent = total >= 7 ? '✓ qualifies for 7+ threshold' : `${needed.toFixed(1)} pts below threshold`;
-    document.getElementById('needed').textContent = needed.toFixed(1);
-
-    const breakdown = document.getElementById('breakdown');
-    breakdown.innerHTML = '';
-
-    const rows = [
-      {
-        name: 'Account Age',
-        detail: `${months} months × 0.5 pt`,
-        raw: agePts,
-        max: 6,
-        unit: 'pts',
-        capped: months >= 12,
-      },
-      {
-        name: 'Public Commits',
-        detail: `${commits} commits (last year, up to 5 repos) × 0.1 pt`,
-        raw: commitPts,
-        max: 3,
-        unit: 'pts',
-        capped: commits >= 30,
-      },
-      {
-        name: 'Original Repos',
-        detail: `${repoCount} repos × 0.5 pt`,
-        raw: repoPts,
-        max: 1,
-        unit: 'pts',
-        capped: repoCount >= 2,
-      },
-      {
-        name: 'Stars',
-        detail: `${totalStars} stars × 0.1 pt`,
-        raw: starPts,
-        max: 5,
-        unit: 'pts',
-        capped: totalStars >= 50,
-      },
+  <script>
+    // ── Word list (B1-B2 Italian vocabulary) ──────────────────────────────────
+    const wordList = [
+      "temere","sperare","fingere","cedere","cogliere","affrontare","condividere",
+      "raggiungere","risolvere","promettere","ricordare","dimenticare","costruire",
+      "distruggere","superare","scegliere","rinunciare","pretendere","accettare",
+      "rifiutare","ammettere","negare","sostenere","abbandonare","attraversare",
+      "nascondere","scoprire","convincere","dubitare","credere","immaginare",
+      "realizzare","proteggere","riconoscere","sfidare","rispettare","tradire",
+      "perdonare","consigliare","lamentarsi","esagerare","improvvisare","affascinare",
+      "deludere","meravigliarsi","vergognarsi","fidarsi","arrabbiarsi","innamorarsi"
     ];
 
-    for (const r of rows) {
-      const pct = Math.min((r.raw / r.max) * 100, 100);
-      breakdown.innerHTML += `
-        <div class="row">
-          <div class="row-left">
-            <div class="row-name">${r.name}${r.capped ? '<span class="cap-badge">capped</span>' : ''}</div>
-            <div class="row-detail">${r.detail}</div>
-            <div class="progress-bar-wrap">
-              <div class="progress-bar ${r.capped ? 'capped' : ''}" style="width:${pct}%"></div>
-            </div>
-          </div>
-          <div class="row-points ${r.capped ? 'capped' : 'partial'}">${r.raw.toFixed(1)} / ${r.max}</div>
+    // ── Date seed: same word for everyone on the same day ────────────────────
+    function getDayIndex() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      return Math.floor(diff / oneDay);
+    }
+
+    function getTodayWord() {
+      return wordList[getDayIndex() % wordList.length];
+    }
+
+    // ── Format today's date nicely ───────────────────────────────────────────
+    function formatDate() {
+      return new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+
+    // ── Fetch from Free Dictionary API ───────────────────────────────────────
+    async function fetchWord(word) {
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/it/${word}`);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      return data[0];
+    }
+
+    // ── Render the card content ───────────────────────────────────────────────
+    function render(data, word) {
+      const meanings = data.meanings || [];
+      const firstMeaning = meanings[0] || {};
+      const pos = firstMeaning.partOfSpeech || '';
+      const defs = firstMeaning.definitions || [];
+      const definition = defs[0]?.definition || 'No definition available.';
+      const example = defs[0]?.example || '';
+
+      // Phonetic
+      const phonetics = data.phonetics || [];
+      const phonetic = phonetics.find(p => p.text)?.text || '';
+
+      let html = `
+        <div class="word-section fade-in">
+          ${pos ? `<span class="pos-badge">${pos}</span>` : ''}
+          <div class="word">${data.word || word}</div>
+          ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
         </div>
+        <hr class="divider"/>
+        <div class="fade-in">
+          <p class="section-label">Definition</p>
+          <p class="definition">${definition}</p>
+        </div>
+      `;
+
+      if (example) {
+        html += `
+          <hr class="divider"/>
+          <div class="fade-in">
+            <p class="section-label">Example</p>
+            <p class="example">"${example}"</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    // ── Render fallback when API fails ────────────────────────────────────────
+    function renderFallback(word) {
+      document.getElementById('content').innerHTML = `
+        <div class="word-section fade-in">
+          <div class="word">${word}</div>
+        </div>
+        <hr class="divider"/>
+        <p class="error">Couldn't load definition right now.<br>Look this word up and come back tomorrow! 🇮🇹</p>
       `;
     }
 
-    results.style.display = 'block';
-  } catch (e) {
-    errorEl.textContent = e.message || 'Something went wrong.';
-    errorEl.style.display = 'block';
-  }
+    // ── Load today's word ─────────────────────────────────────────────────────
+    async function loadToday() {
+      document.getElementById('dateBadge').textContent = formatDate();
+      document.getElementById('content').innerHTML = '<p class="loading">Loading…</p>';
+      const word = getTodayWord();
+      try {
+        const data = await fetchWord(word);
+        render(data, word);
+      } catch {
+        renderFallback(word);
+      }
+    }
 
-  spinner.style.display = 'none';
-  btn.disabled = false;
-}
+    // ── Load a random word ────────────────────────────────────────────────────
+    async function loadRandom() {
+      document.getElementById('dateBadge').textContent = '🎲 Random pick';
+      document.getElementById('content').innerHTML = '<p class="loading">Loading…</p>';
+      const word = wordList[Math.floor(Math.random() * wordList.length)];
+      try {
+        const data = await fetchWord(word);
+        render(data, word);
+      } catch {
+        renderFallback(word);
+      }
+    }
 
-document.getElementById('username').addEventListener('keydown', e => {
-  if (e.key === 'Enter') calculate();
-});
-</script>
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadToday();
+  </script>
 </body>
 </html>
