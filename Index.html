@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parola del Giorno</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f5f0e8;
+      --ink: #1a1408;
+      --terracotta: #c8553d;
+      --gold: #c9972b;
+      --muted: #8a7f6e;
+      --card: #fffdf7;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-image:
+        radial-gradient(ellipse at 10% 20%, rgba(200,85,61,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 80%, rgba(201,151,43,0.07) 0%, transparent 50%);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    header .flag { font-size: 2rem; margin-bottom: 0.4rem; }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+    }
+
+    header .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 4px 40px rgba(26,20,8,0.10), 0 1px 4px rgba(26,20,8,0.06);
+      border: 1px solid rgba(201,151,43,0.15);
+      animation: fadeUp 0.7s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--terracotta), var(--gold));
+    }
+
+    .date-badge {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+
+    .word-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .pos-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      background: rgba(200,85,61,0.09);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
+
+    .word {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 8vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -1px;
+    }
+
+    .phonetic {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(26,20,8,0.08);
+      margin: 1.4rem 0;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .definition {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+
+    .example {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-left: 1rem;
+      border-left: 2px solid var(--gold);
+    }
+
+    .loading, .error {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-style: italic;
+      padding: 1rem 0;
+      text-align: center;
+    }
+
+    .error { color: var(--terracotta); }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    button:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: var(--terracotta);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(200,85,61,0.25);
+    }
+
+    .btn-primary:hover { opacity: 0.88; box-shadow: 0 4px 16px rgba(200,85,61,0.3); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid rgba(26,20,8,0.18);
+    }
+
+    .btn-secondary:hover { background: rgba(26,20,8,0.04); }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeUp 0.45s ease both;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="flag">🇮🇹</div>
+    <h1>Parola del Giorno</h1>
+    <p class="subtitle">Italian Word of the Day</p>
+  </header>
+
+  <div class="card" id="card">
+    <div class="date-badge" id="dateBadge"></div>
+    <div id="content"><p class="loading">Loading today's word…</p></div>
+    <div class="actions">
+      <button class="btn-primary" onclick="loadRandom()">🎲 Random Word</button>
+      <button class="btn-secondary" onclick="loadToday()">📅 Today's Word</button>
+    </div>
+  </div>
+
+  <footer>Powered by Free Dictionary API &mdash; italiano-insieme.eu</footer>
+
+  <script>
+    // ── Word list (B1-B2 Italian vocabulary) ──────────────────────────────────
+    const wordList = [
+      "temere","sperare","fingere","cedere","cogliere","affrontare","condividere",
+      "raggiungere","risolvere","promettere","ricordare","dimenticare","costruire",
+      "distruggere","superare","scegliere","rinunciare","pretendere","accettare",
+      "rifiutare","ammettere","negare","sostenere","abbandonare","attraversare",
+      "nascondere","scoprire","convincere","dubitare","credere","immaginare",
+      "realizzare","proteggere","riconoscere","sfidare","rispettare","tradire",
+      "perdonare","consigliare","lamentarsi","esagerare","improvvisare","affascinare",
+      "deludere","meravigliarsi","vergognarsi","fidarsi","arrabbiarsi","innamorarsi"
+    ];
+
+    // ── Date seed: same word for everyone on the same day ────────────────────
+    function getDayIndex() {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now - start;
+      const oneDay = 1000 * 60 * 60 * 24;
+      return Math.floor(diff / oneDay);
+    }
+
+    function getTodayWord() {
+      return wordList[getDayIndex() % wordList.length];
+    }
+
+    // ── Format today's date nicely ───────────────────────────────────────────
+    function formatDate() {
+      return new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+
+    // ── Fetch from Free Dictionary API ───────────────────────────────────────
+    async function fetchWord(word) {
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/it/${word}`);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      return data[0];
+    }
+
+    // ── Render the card content ───────────────────────────────────────────────
+    function render(data, word) {
+      const meanings = data.meanings || [];
+      const firstMeaning = meanings[0] || {};
+      const pos = firstMeaning.partOfSpeech || '';
+      const defs = firstMeaning.definitions || [];
+      const definition = defs[0]?.definition || 'No definition available.';
+      const example = defs[0]?.example || '';
+
+      // Phonetic
+      const phonetics = data.phonetics || [];
+      const phonetic = phonetics.find(p => p.text)?.text || '';
+
+      let html = `
+        <div class="word-section fade-in">
+          ${pos ? `<span class="pos-badge">${pos}</span>` : ''}
+          <div class="word">${data.word || word}</div>
+          ${phonetic ? `<div class="phonetic">${phonetic}</div>` : ''}
+        </div>
+        <hr class="divider"/>
+        <div class="fade-in">
+          <p class="section-label">Definition</p>
+          <p class="definition">${definition}</p>
+        </div>
+      `;
+
+      if (example) {
+        html += `
+          <hr class="divider"/>
+          <div class="fade-in">
+            <p class="section-label">Example</p>
+            <p class="example">"${example}"</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    // ── Render fallback when API fails ────────────────────────────────────────
+    function renderFallback(word) {
+      document.getElementById('content').innerHTML = `
+        <div class="word-section fade-in">
+          <div class="word">${word}</div>
+        </div>
+        <hr class="divider"/>
+        <p class="error">Couldn't load definition right now.<br>Look this word up and come back tomorrow! 🇮🇹</p>
+      `;
+    }
+
+    // ── Load today's word ─────────────────────────────────────────────────────
+    async function loadToday() {
+      document.getElementById('dateBadge').textContent = formatDate();
+      document.getElementById('content').innerHTML = '<p class="loading">Loading…</p>';
+      const word = getTodayWord();
+      try {
+        const data = await fetchWord(word);
+        render(data, word);
+      } catch {
+        renderFallback(word);
+      }
+    }
+
+    // ── Load a random word ────────────────────────────────────────────────────
+    async function loadRandom() {
+      document.getElementById('dateBadge').textContent = '🎲 Random pick';
+      document.getElementById('content').innerHTML = '<p class="loading">Loading…</p>';
+      const word = wordList[Math.floor(Math.random() * wordList.length)];
+      try {
+        const data = await fetchWord(word);
+        render(data, word);
+      } catch {
+        renderFallback(word);
+      }
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadToday();
+  </script>
+</body>
+</html>
